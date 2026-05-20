@@ -1,0 +1,65 @@
+@model SoruCevap_forum_.Models.Question
+@{
+    ViewData["Title"] = "Yeni Soru Paylaş";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-lg-8">
+        <div class="elegant-card shadow-lg p-5 border-0 card-cyan">
+            <div class="text-center mb-5">
+                <div class="bg-dark p-3 rounded-circle border border-info border-opacity-10 d-inline-block mb-3">
+                    <i class="fas fa-plus fa-3x neon-glow-text"></i>
+                </div>
+                <h1 class="font-heading text-white mb-2">Soru Paylaş</h1>
+                <p class="text-muted small">Topluluğun bilgisine başvurmak için aşağıdaki formu doldur.</p>
+            </div>
+            
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-4"></div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <label asp-for="CategoryId" class="form-label font-heading extra-small text-muted mb-2">KATEGORİ SEÇİMİ</label>
+                        <select asp-for="CategoryId" class="form-select border-secondary border-opacity-20 py-3" asp-items="ViewBag.CategoryId" required>
+                            <option value="">Lütfen seçim yapın...</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger extra-small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Title" class="form-label font-heading extra-small text-muted mb-2">SORU BAŞLIĞI</label>
+                    <input asp-for="Title" class="form-control border-secondary border-opacity-20 py-3" placeholder="Kısa ve öz bir başlık giriniz..." required />
+                    <span asp-validation-for="Title" class="text-danger extra-small"></span>
+                    <div class="form-text extra-small opacity-50 text-white mt-1">// İYİ BİR BAŞLIK DAHA HIZLI YANIT ALMANI SAĞLAR.</div>
+                </div>
+
+                <div class="mb-5">
+                    <label asp-for="Content" class="form-label font-heading extra-small text-muted mb-2">DETAYLI AÇIKLAMA</label>
+                    <textarea asp-for="Content" class="form-control border-secondary border-opacity-20" rows="8" placeholder="Sorunun detaylarını, üzerinde denediğin yolları buraya yaz..." required></textarea>
+                    <span asp-validation-for="Content" class="text-danger extra-small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top border-secondary border-opacity-10">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary border-0 rounded-pill px-4 text-muted extra-small font-heading">İPTAL ET</a>
+                    <button type="submit" class="btn-elegant-cyan px-5 py-3 shadow-lg">
+                        SORUYU PAYLAŞ <i class="fas fa-check-circle ms-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <div class="bg-dark border border-secondary border-opacity-10 p-3 rounded-pill d-inline-block px-4">
+                <p class="extra-small text-muted mb-0"><i class="fas fa-info-circle me-2 text-info"></i> Lütfen topluluk kurallarına uygun bir dil kullanın.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <style>
+        .extra-small { font-size: 0.65rem; letter-spacing: 0.5px; }
+    </style>
+}

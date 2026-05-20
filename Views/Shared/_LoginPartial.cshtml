@@ -1,0 +1,38 @@
+@using Microsoft.AspNetCore.Identity
+@using SoruCevap_forum_.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle neon-text-blue" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle me-1"></i> @(user?.FullName ?? User.Identity?.Name)
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark glass-panel" aria-labelledby="navbarDropdown">
+            @if (User.IsInRole("Admin"))
+            {
+                <li><a class="dropdown-item neon-text-pink" asp-controller="Admin" asp-action="Index"><i class="fas fa-chart-line me-2"></i>Dashboard</a></li>
+                <li><hr class="dropdown-divider"></li>
+            }
+            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profilim</a></li>
+            <li>
+                <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="dropdown-item text-danger">Çıkış Yap</button>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link btn-neon-blue py-1 px-3 mt-1 me-2" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link btn-neon-pink py-1 px-3 mt-1" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+    </li>
+}
+</ul>

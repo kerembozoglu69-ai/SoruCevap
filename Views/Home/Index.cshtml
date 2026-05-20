@@ -1,0 +1,129 @@
+@model IEnumerable<SoruCevap_forum_.Models.Question>
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    var categories = ViewBag.Categories as IEnumerable<SoruCevap_forum_.Models.Category>;
+}
+
+<div class="row mb-5 py-4">
+    <div class="col-lg-8">
+        <h1 class="display-5 font-heading text-white mb-3">Bilgi Paylaşınca <span>Parlarsın.</span></h1>
+        <p class="text-muted lead pb-4 border-bottom border-secondary border-opacity-10">Öğrenci topluluğunun yeni nesil yardım platformuna hoş geldin. Sorularını sor, puanlarını topla ve zirveye yerleş.</p>
+        <div class="d-flex gap-3 mt-4">
+            <a asp-controller="Questions" asp-action="Create" class="btn-elegant-cyan shadow-sm">
+                <i class="fas fa-plus me-2"></i> Yeni Soru Paylaş
+            </a>
+            <a href="#feed" class="btn btn-link text-muted text-decoration-none fw-600">Soruları Keşfet</a>
+        </div>
+    </div>
+</div>
+
+<div class="row" id="feed">
+    <!-- Categories List -->
+    <div class="col-md-3">
+        <div class="elegant-card mb-4 position-sticky" style="top: 100px;">
+            <h6 class="font-heading neon-glow-text mb-4">KATEGORİLER</h6>
+            <div class="d-grid gap-1">
+                <a href="#" class="cat-link active-cat">
+                    <i class="fas fa-layer-group me-2"></i> Hepsi
+                </a>
+                @if (categories != null)
+                {
+                    foreach (var category in categories)
+                    {
+                        <a href="#" class="cat-link">
+                            <i class="fas @(category.Icon ?? "fa-hashtag") me-2"></i> @category.Name
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="elegant-card card-pink text-center p-4">
+            <i class="fas fa-trophy fa-2x mb-3 neon-glow-pink"></i>
+            <h6 class="font-heading mb-1 text-white">HAFTANIN YILDIZI</h6>
+            <div class="small text-muted mb-3">En çok puan toplayan düğüm</div>
+            <div class="fw-bold fs-5">YAKINDA</div>
+        </div>
+    </div>
+
+    <!-- Question Feed -->
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="font-heading text-white opacity-75 mb-0">Popüler Sorular</h5>
+            <div class="dropdown">
+                <button class="btn btn-elegant-cyan btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    SIRALAMA
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark border-secondary">
+                    <li><a class="dropdown-item" href="#">EN YENİ</a></li>
+                    <li><a class="dropdown-item" href="#">EN ÇOK CEVAP</a></li>
+                </ul>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="elegant-card text-center py-5 border-dashed border-secondary">
+                <i class="fas fa-search fa-3x mb-4 text-muted opacity-25"></i>
+                <h5 class="text-white opacity-50">Henüz hiç soru sorulmadı.</h5>
+                <a asp-controller="Questions" asp-action="Create" class="btn-elegant-cyan mt-3">İLK SORUYU SEN SOR</a>
+            </div>
+        }
+        else
+        {
+            foreach (var question in Model)
+            {
+                <div class="elegant-card mb-4 p-4 card-cyan">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge badge-neon-cyan py-1 px-3">
+                            <i class="fas fa-hashtag me-1"></i> @question.Category?.Name
+                        </span>
+                        <div class="text-muted small">@question.CreatedAt.ToString("g")</div>
+                    </div>
+
+                    <h4 class="font-heading mb-3">
+                        <a asp-controller="Questions" asp-action="Details" asp-route-id="@question.Id" class="text-white text-decoration-none hover-neon">
+                            @question.Title
+                        </a>
+                    </h4>
+                    
+                    <p class="text-muted mb-4 opacity-75">@question.Content</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-10">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-dark p-2 rounded-circle me-3 border border-secondary border-opacity-30">
+                                <i class="fas fa-user-circle fa-lg text-white opacity-40"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small text-white">@question.User?.FullName</div>
+                                <div class="extra-small neon-glow-pink font-heading">SEVİYE: @question.User?.Level.ToUpper()</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-4 text-center">
+                            <div>
+                                <div class="fw-bold text-white small">@question.Answers.Count</div>
+                                <div class="extra-small text-muted">CEVAP</div>
+                            </div>
+                            <a asp-controller="Questions" asp-action="Details" asp-route-id="@question.Id" class="btn btn-elegant-cyan btn-sm border-0 bg-secondary bg-opacity-10">Görüntüle</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .hover-neon:hover { color: var(--neon-cyan) !important; text-shadow: var(--glow-cyan); }
+        .cat-link { 
+            background: transparent; border-radius: 8px; color: var(--text-muted); 
+            padding: 10px 15px; text-decoration: none; transition: 0.3s;
+            font-size: 0.85rem; font-weight: 500;
+        }
+        .cat-link:hover { background: rgba(0, 212, 255, 0.05); color: var(--neon-cyan); }
+        .active-cat { background: rgba(0, 212, 255, 0.1) !important; color: var(--neon-cyan) !important; border-left: 3px solid var(--neon-cyan); }
+        .extra-small { font-size: 0.65rem; letter-spacing: 0.5px; }
+        .fw-600 { font-weight: 600; }
+    </style>
+}

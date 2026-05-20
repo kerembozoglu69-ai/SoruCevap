@@ -1,0 +1,207 @@
+@model IEnumerable<SoruCevap_forum_.Models.Question>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<SoruCevap_forum_.Models.ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Yönetim Paneli";
+    var categoryStats = ViewBag.CategoryStats as IEnumerable<dynamic>;
+    var allUsers = ViewBag.AllUsers as IEnumerable<SoruCevap_forum_.Models.ApplicationUser>;
+}
+
+<div class="row align-items-center mb-5 mt-4">
+    <div class="col-md-6">
+        <h1 class="font-heading text-white mb-2">Yönetim Paneli</h1>
+        <div class="small text-muted border-start border-primary border-3 ps-3">Sistem durumu ve kullanıcı kontrol merkezi.</div>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <div class="pt-3">
+            <a asp-action="ExportExcel" class="btn btn-elegant-cyan btn-sm me-2">
+                <i class="fas fa-file-excel me-2"></i> EXCEL ÇIKTISI
+            </a>
+            <a asp-action="ExportPdf" class="btn btn-elegant-pink btn-sm">
+                <i class="fas fa-file-pdf me-2"></i> PDF RAPORU
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Row -->
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="elegant-card card-cyan mb-4 py-4 shadow-sm border-0 bg-secondary bg-opacity-10">
+            <h6 class="font-heading text-muted small mb-2">TOPLAM KULLANICI</h6>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="font-heading text-white mb-0">@ViewBag.TotalUsers</h2>
+                <i class="fas fa-users fa-2x opacity-25 neon-glow-text"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="elegant-card card-pink mb-4 py-4 shadow-sm border-0 bg-secondary bg-opacity-10">
+            <h6 class="font-heading text-muted small mb-2">TOPLAM SORU</h6>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="font-heading text-white mb-0">@ViewBag.TotalQuestions</h2>
+                <i class="fas fa-comments fa-2x opacity-25 neon-glow-pink"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="elegant-card card-cyan mb-4 py-4 shadow-sm border-0 bg-secondary bg-opacity-10">
+            <h6 class="font-heading text-muted small mb-2">TOPLAM CEVAP</h6>
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="font-heading text-white mb-0">@ViewBag.TotalAnswers</h2>
+                <i class="fas fa-reply-all fa-2x opacity-25 neon-glow-text"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <!-- Chart: Activity Trends -->
+    <div class="col-lg-8 mb-4">
+        <div class="elegant-card h-100 p-4">
+            <h6 class="font-heading text-white mb-4 opacity-75">KATEGORİ AKTİVİTE DAĞILIMI</h6>
+            <div style="height: 300px;">
+                <canvas id="elegantChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mini Log / Info -->
+    <div class="col-lg-4 mb-4">
+        <div class="elegant-card h-100 p-4 border-dashed border-secondary border-opacity-20">
+            <h6 class="font-heading text-white mb-4 opacity-75">SİSTEM BİLDİRİMLERİ</h6>
+            <div class="small text-muted">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-circle text-success me-3 extra-small"></i>
+                    <div>Veritabanı bağlantısı stabil.</div>
+                </div>
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-circle text-info me-3 extra-small"></i>
+                    <div>PDF Raporlama sistemi aktif.</div>
+                </div>
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-circle text-warning me-3 extra-small"></i>
+                    <div>Yüksek trafik uyarısı: Yazılım kategorisi.</div>
+                </div>
+                <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
+                    <a href="#" class="text-primary text-decoration-none extra-small fw-bold">TÜM LOGLARI GÖR <i class="fas fa-chevron-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Management -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="elegant-card">
+            <h6 class="font-heading text-white mb-4 opacity-75">KULLANICI DİZİNİ VE KONTROLÜ</h6>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead class="bg-black bg-opacity-30">
+                        <tr class="small text-muted font-heading opacity-50">
+                            <th>AD SOYAD / EMAIL</th>
+                            <th>ROL</th>
+                            <th>PUAN (XP)</th>
+                            <th>DURUM</th>
+                            <th class="text-end">EYLEM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (allUsers != null)
+                        {
+                            foreach (var user in allUsers)
+                            {
+                                var roles = await UserManager.GetRolesAsync(user);
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-dark p-2 rounded-circle me-3 border border-secondary border-opacity-10">
+                                                <i class="fas fa-user @(roles.Contains("Admin") ? "neon-glow-pink" : "text-white opacity-40")"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-white small">@user.FullName</div>
+                                                <div class="extra-small text-muted">@user.Email</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge @(roles.Contains("Admin") ? "bg-info" : "bg-secondary bg-opacity-20") extra-small p-2">@string.Join(", ", roles).ToUpper()</span>
+                                    </td>
+                                    <td><span class="fw-bold neon-glow-text">@user.Points</span></td>
+                                    <td>
+                                        @if (user.IsSuspended)
+                                        {
+                                            <span class="text-danger extra-small fw-bold"><i class="fas fa-ban me-1"></i> ASKIYA ALINDI</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success extra-small fw-bold"><i class="fas fa-check-circle me-1"></i> AKTİF</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle rounded-pill px-3" data-bs-toggle="dropdown">YÖNET</button>
+                                            <ul class="dropdown-menu dropdown-menu-dark shadow-lg border-secondary">
+                                                <li>
+                                                    <form asp-action="ToggleUserSuspension" method="post">
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <button type="submit" class="dropdown-item small">@(user.IsSuspended ? "AKTİFLEŞTİR" : "ASKIYA AL")</button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form asp-action="ChangeUserRole" method="post">
+                                                        <input type="hidden" name="userId" value="@user.Id" />
+                                                        <input type="hidden" name="newRole" value="@(roles.Contains("Admin") ? "Student" : "Admin")" />
+                                                        <button type="submit" class="dropdown-item small">ROL DEĞİŞTİR (@(roles.Contains("Admin") ? "Öğrenci Yap" : "Admin Yap"))</button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('elegantChart').getContext('2d');
+        const categoryLabels = @Html.Raw(Json.Serialize(categoryStats?.Select(s => s.Name)));
+        const categoryData = @Html.Raw(Json.Serialize(categoryStats?.Select(s => s.Count)));
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: 'Soru Sayısı',
+                    data: categoryData,
+                    backgroundColor: 'rgba(0, 212, 255, 0.4)',
+                    borderColor: '#00d4ff',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#8b949e' } },
+                    x: { grid: { display: false }, ticks: { color: '#8b949e' } }
+                }
+            }
+        });
+    </script>
+    <style>
+        .extra-small { font-size: 0.65rem; }
+    </style>
+}
