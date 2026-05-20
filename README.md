@@ -1,0 +1,2 @@
+# SoruCevap
+soru cevap uygulamsı
